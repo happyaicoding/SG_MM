@@ -1,0 +1,107 @@
+# AI 自動策略開發系統 — 全域設定
+
+# ── 合約規格 ────────────────────────────────────────────────────
+contract:
+  symbol: TX
+  point_value: 200          # 每點 NT$200
+  commission: 100           # 單邊手續費（元）
+  slippage: 1               # 點
+  initial_capital: 500_000  # NT$500,000
+  max_position: 1           # 最大持倉口數
+
+# ── 資料設定 ────────────────────────────────────────────────────
+data:
+  timeframe: 1min
+  timezone: Asia/Taipei
+  sessions:
+    day:   { start: "08:45", end: "13:45" }
+    night: { start: "15:00", end: "05:00" }  # 跨午夜
+
+# ── 訓練 / 測試分割 ─────────────────────────────────────────────
+split:
+  train: { start: "2015-01-01", end: "2021-12-31" }
+  test:  { start: "2022-01-01", end: "2024-12-31" }
+
+# Walk-Forward 視窗（月）
+walk_forward:
+  train_months: 24
+  test_months: 6
+
+# ── 篩選門檻（v1.1 兩段式）──────────────────────────────────────
+# Python 初篩門檻（快篩，寬鬆）
+python_filter:
+  sharpe_min: 1.2
+  max_drawdown_max: 0.35    # 35%（初篩放寬）
+  profit_factor_min: 1.0    # PF≥1 即不虧
+  min_trades: 80
+
+# MultiCharts 精測門檻（嚴格）
+mc_filter:
+  sharpe_min: 1.5
+  max_drawdown_max: 0.20    # 20%
+  profit_factor_min: 2.0
+  min_trades: 100
+  oos_is_ratio_min: 0.60    # OOS Sharpe / IS Sharpe ≥ 0.6（過擬合偵測）
+
+# 健康監控警報門檻
+health_monitor:
+  yellow: { consecutive_losses: 5,  drawdown_ratio: 0.50 }
+  orange: { consecutive_losses: 8,  drawdown_ratio: 0.70 }
+  red:    { consecutive_losses: 10, drawdown_ratio: 0.80 }
+
+# 舊欄位（向下相容，已由上方兩段式取代）
+thresholds:
+  sharpe_min: 1.2
+  max_drawdown_max: 0.35
+  profit_factor_min: 1.0
+  min_trades: 80
+  test_sharpe_ratio: 0.60   # OOS/IS 衰退比例門檻
+
+# ── LLM 供應商選擇 ──────────────────────────────────────────────
+# 切換供應商只需修改 provider，不需改程式碼
+llm:
+  provider: minimax         # claude / minimax
+
+# ── Claude API ──────────────────────────────────────────────────
+claude:
+  model: claude-sonnet-4-20250514
+  max_tokens:
+    generate: 4096
+    summarize: 2048
+    optimize: 2048
+  temperature:
+    generate: 0.7
+    optimize: 0.3
+  retry:
+    max_attempts: 3
+    backoff: [1, 4, 16]     # 秒
+  max_daily_tokens: 1_000_000  # 每日 token 預算上限
+
+# ── MiniMax API ──────────────────────────────────────────────────
+# API Key: 環境變數 MINIMAX_API_KEY（設於 .env）
+minimax:
+  model: MiniMax-M2.7
+  # 可選：MiniMax-M2.7-highspeed / MiniMax-M2.5 / MiniMax-M2.5-highspeed
+
+# ── Agent Loop ──────────────────────────────────────────────────
+agent:
+  default_cycles: 5
+  max_params: 5             # 每策略最多可調參數數量
+
+# ── MultiCharts 12 橋接 ─────────────────────────────────────────
+mc_bridge:
+  mc_dir:        "C:/Program Files/TS Support/MultiCharts64"
+  studies_dir:   "C:/ProgramData/TS Support/MultiCharts64/StudyServer/Studies/SrcEl/Strategies"
+  workspace:     null           # 填入 .wsp 路徑；null = 使用目前已開啟的工作區
+  strategy_name: "AI_TEST"      # MC12 中固定使用的策略槽（每次覆寫）
+  chart_title:   "TXF"          # 用於定位圖表視窗的標題關鍵字
+  spr_export_dir: "reports/mc_spr"
+  compile_wait:  15.0           # 等待 PLEditor 編譯完成的秒數
+  backtest_wait: 180.0          # 等待 MC12 回測完成的超時秒數
+  dialog_interval: 1.0          # 對話框守衛輪詢間隔（秒）
+
+# ── Web UI ──────────────────────────────────────────────────────
+web:
+  host: 0.0.0.0
+  port: 8080
+  debug: false

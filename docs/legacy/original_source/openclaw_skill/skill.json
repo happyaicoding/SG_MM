@@ -1,0 +1,18 @@
+{
+  "name": "trading-strategy-skill",
+  "version": "1.0.0",
+  "description": "AI 自動化台指期策略開發系統 OpenClaw Skill",
+  "author": "happyaicoding",
+  "endpoint": "http://localhost:8080",
+  "commands": [
+    { "cmd": "/run",      "args": "<N>",           "description": "啟動 N 輪 Agent Loop" },
+    { "cmd": "/backtest", "args": "<strategy_id>", "description": "執行指定策略全期回測" },
+    { "cmd": "/generate", "args": "",              "description": "AI 生成一個新策略並回測" },
+    { "cmd": "/optimize", "args": "<strategy_id>", "description": "AI 優化指定策略參數" },
+    { "cmd": "/report",   "args": "<strategy_id>", "description": "產出 HTML 報表並回傳連結" },
+    { "cmd": "/list",     "args": "",              "description": "列出策略庫與狀態" },
+    { "cmd": "/top",      "args": "",              "description": "顯示績效前 5 名策略" },
+    { "cmd": "/status",   "args": "",              "description": "系統狀態與 API 用量" }
+  ],
+  "permissions": ["http"]
+}

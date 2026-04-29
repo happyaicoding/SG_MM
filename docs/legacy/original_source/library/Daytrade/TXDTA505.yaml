@@ -1,0 +1,47 @@
+name: TXDTA505
+holding_type: daytrade           # 大分類：當沖（當日進場、當日平倉）
+category: trend                  # 小分類：突破型趨勢策略
+timeframe: 5min
+direction: both
+description: |
+  日盤當沖突破策略：
+  以近三日收盤價最高/最低定義趨勢區間，當 K 棒收盤突破區間且滿足多重條件時順勢進場。
+
+  進場條件（多單對稱於空單）：
+    1. 收盤 > 昨收 + 0.8 × 趨勢區間（trend break）
+    2. (H + L) / 2 > max(今開, 三日均)（位階確認）
+    3. 今開 > 昨收 - 0.6 × 趨勢區間（避免追過深的低開）
+    4. 收盤 > 前根收盤（動能確認）
+    5. 低點 > max(前兩日日高)（除非高分歧 condition30）
+    6. 條件30：(dis / HHLL) > 0.333（高分歧過濾，dis = abs(opend(2) - closed(1))）
+
+  進場下單：
+    - 預設 1 口；若當日 H>H[1] 比例 > 50% 則升為 2 口
+    - 進場價：iff(K>30 or 高分歧, highd(0), h) stop（突破當日高 or 當前 bar 高）
+
+  出場條件：
+    1. 主部位（B1/S1）：固定停損 STL 點 — 若 k>30 且高點/低點拉回比例 > 60% 則減半
+    2. 副部位 1 口：高點拉回追蹤出場（HighestBar / LowestBar 動態）
+    3. 13:35 強制平倉（B_TEx / S_TEx）+ SetExitOnClose 雙保險
+
+  參數：
+    L_ratio (0.8) — 趨勢判定上方比例
+    S_ratio (0.6) — 趨勢判定下方比例
+    STL     (50)  — 停損點位（點）
+
+risk_features:
+  - "EntriesToday(d) <= 0：每日只進場一次"
+  - "k 變數計算當日 bar 序號，t<t[1] 偵測新交易日重置"
+  - "k > 1 且 k < 58：避開開盤第一根與收盤前 5 根"
+  - "條件30 高分歧過濾（dis/HHLL > 0.333）避免假突破"
+  - "固定停損 STL；30 根後拉回 > 60% 自動減半（保護利潤）"
+  - "拉回追蹤出場（HighestBar/LowestBar 偵測反轉）"
+  - "13:35 強制平倉 + SetExitOnClose 雙保險"
+
+proven_period: "（請補上實盤起訖，例：2023-01 ~ 2024-12）"
+
+notes: |
+  策略名稱 TXDTA505 = TX (台指) Day Trade A 505。
+  使用 EntriesToday(d) 防止當日重複進場 — 這是日盤當沖的關鍵保護機制。
+  k 變數記錄當日 bar 序號，搭配 t<t[1] 偵測新交易日（跨日重置）。
+  分倉設計：B1/S1 為主部位用固定停損，B_STL/S_STL 為追蹤出場部位。

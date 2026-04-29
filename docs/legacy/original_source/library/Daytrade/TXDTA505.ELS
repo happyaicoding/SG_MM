@@ -1,0 +1,62 @@
+input:L_ratio(0.8),S_ratio(0.6),STL(50);
+vars:K(1);
+if t<t[1] then k=1 else k=k+1;
+vars:DCAVG3(0),HDCAVG3(0),LDCAVG3(0);
+vars:distance(0);
+ 
+DCAVG3=(closed(1)+closed(2)+Closed(3))/3;
+HDCAVG3=maxlist(closed(1),closed(2),Closed(3));
+LDCAVG3=minlist(closed(1),closed(2),Closed(3));
+distance=maxlist(25,absvalue(HDCAVG3-LDCAVG3));
+
+vars:HHLL(1),dis(1);
+HHLL=maxlist(50,maxlist(highd(1),highd(2))-minlist(lowd(1),lowd(2)));
+dis=maxlist(25,absvalue(opend(2)-closed(1)));
+condition30=(dis/HHLL)>0.333;
+{vars:Lout(false),Sout(false);
+if k=1 then begin
+Lout=False;
+sout=False;
+end;}
+if EntriesToday(d)<=0  and  k<58 and k>1   then begin
+	if h>closed(1)+distance*L_ratio 
+		and  (l+c)/2 >maxlist(opend(0),DCAVG3) and opend(0)>closed(1)-distance*S_ratio
+			and c>c[1] and l>iff(condition30,0,maxlist(highd(1),highd(2)))  
+				then buy("B1") iff(countif(H>H[1],k)>=k*0.5,2,1)   contracts next bar at iff(K>30 or condition30,highd(0),h)  stop;
+		
+	if l<closed(1)-distance*S_ratio    
+		and (h+c)/2 <minlist(opend(0),DCAVG3) and opend(0)<closed(1)+distance*L_ratio
+			and c<c[1] and h<iff(condition30,9999999,minlist(lowd(1),lowd(2))) 
+				then sellshort("S1")  iff(countif(L<L[1],k)>=k*0.5,2,1)  contracts next bar at iff(K>30 or condition30,lowd(0),l)    stop;
+end;
+ 
+if mp>0 then begin 
+	 if entryname="B1" then sell 2 contracts 
+	 	 next bar at entryprice-STL*iff(k>30 and HighestBar(L,barssinceentry)>barssinceentry*0.6,0.5,1)  stop;	
+	 	  	 	
+	 if l>entryprice  and HighestBar(L,barssinceentry)>barssinceentry*0.6 and l<L[1]    
+	 	then sell("B_STL")1 contracts next bar at market;
+ 
+end;
+
+
+
+if mp<0 then begin
+        
+	 if entryname="S1" then buytocover 2 contracts 
+	 	next bar at entryprice+STL*iff(k>30 and LowestBar(h,barssinceentry)>barssinceentry*0.6 ,0.5,1)  stop;
+	 	
+	 if h<entryprice and LowestBar(h,barssinceentry)>barssinceentry*0.6 and h>h[1]    
+	 	then buytocover("S_STL") 1 contracts next bar at market;
+ 	
+end;
+
+
+if t>=1335  then begin
+sell("B_TEx") next bar at market;
+buytocover("S_TEx") next bar at market;
+end;
+setexitonclose;
+
+ 
+

@@ -1,0 +1,56 @@
+# strategygen/config.yaml  — v2 規格
+# Phase 1: 搬遷 + 結構建立 + 基礎 config
+
+contract:
+  symbol: TX
+  max_position: 1
+  point_value: 200
+  commission: 100
+  slippage: 1
+  initial_capital: 500000
+
+python_filter:
+  sharpe_min:        1.2
+  max_drawdown_max:  0.30
+  profit_factor_min: 1.2
+  min_trades:        80
+
+mc_filter:
+  sharpe_min:        1.5
+  max_drawdown_max:  0.20
+  profit_factor_min: 2.0
+  min_trades:        100
+  oos_is_ratio_min:  0.6
+
+stop_loss_limits:
+  daytrade_max_points: 150
+  swing_max_points:    250
+
+split:
+  train:
+    start: "2015-01-01"
+    end:   "2021-12-31"
+  test:
+    start: "2022-01-01"
+    end:   "2024-12-31"
+
+llm:
+  provider: minimax
+
+# 頂層 alias — client.py 讀 cfg.get("claude",{}).get("model")（非 llm.claude.model）
+claude:
+  model: "claude-sonnet-4-20250514"
+minimax:
+  model: "MiniMax-M2.7"
+
+# MultiCharts 設定（compile_to_pla.py 薄殼使用，實際由主專案 mc_bridge 執行）
+multichain:
+  mc_dir:       "C:/Program Files/TS Support/MultiCharts64"
+  studies_dir:  "C:/ProgramData/TS Support/MultiCharts64/StudyServer/Studies/SrcEl/Strategies"
+  spr_dir:      "reports/mc_spr"
+  compile_wait: 15
+  backtest_wait: 180
+
+# data_adapter 橋接設定（相對於子專案根目錄）
+aismart_root: "../../"
+generated_strategies_dir: "../../src/strategies/generated"

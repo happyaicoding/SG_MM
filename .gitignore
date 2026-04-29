@@ -1,0 +1,31 @@
+# Secrets
+.env
+
+# Data (large files, local only)
+data/sqlite/
+data/duckdb/
+data/models/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

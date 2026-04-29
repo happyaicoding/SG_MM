@@ -1,0 +1,9 @@
+{
+  "date": "2026-04-27",
+  "attempts": 6,
+  "successes": 0,
+  "tokens_used": 17988,
+  "type_consecutive_fails": {
+    "trend": 6
+  }
+}
