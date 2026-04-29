@@ -1,0 +1,255 @@
+# tests/rag_test_set.yaml — RAG 檢索品質評估測試集
+#
+# 用途：每 Phase 結束時跑 eval_rag.py，計算 Recall@5 / MRR
+# Phase 1 目標：≥ 30 cases，Recall@5 ≥ 0.60，MRR ≥ 0.40
+#
+# 製作方式：從 library/ 現有 Few-shot（TXDTA505）+ 舊專案策略推導自然語言查詢
+#
+# 格式：
+#   id        : 唯一識別符（tc_001 ~ tc_NNN）
+#   query     : 自然語言查詢（模擬使用者輸入）
+#   expected  : 預期被檢索到的策略關鍵字（description/session/trend 關鍵詞）
+#   rationale : 為什麼這是合理預期（哪些策略應該被找到）
+
+test_cases:
+
+  # ── 日盤當沖（daytrade_day）───────────────────────────────────────────────
+
+  - id: tc_001
+    query: "日盤當沖，5分K，突破策略"
+    expected: [daytrade_day, 5min, trend, breakout]
+    rationale: "TXDTA505 是經典日盤當沖突破，5分K，category=trend"
+
+  - id: tc_002
+    query: "台指日盤當沖，動能進場"
+    expected: [daytrade_day, momentum, trend]
+    rationale: "動能進場與趨勢突破高度相關，TXDTA505 具動能確認條件"
+
+  - id: tc_003
+    query: "當沖只做一口，不重複進場"
+    expected: [daytrade_day, EntriesToday]
+    rationale: "EntriesToday 防重複進場是日盤當沖核心保護"
+
+  - id: tc_004
+    query: "日盤當沖，13:35 強迫平倉"
+    expected: [daytrade_day, force_close, 13:35]
+    rationale: "日盤當沖強制平倉時點（13:40 K open），TXDTA505 明確提到"
+
+  - id: tc_005
+    query: "daytrade_day 5分鐘 順勢策略"
+    expected: [daytrade_day, 5min, trend]
+    rationale: "daytrade_day + 5min + trend 是常見組合"
+
+  # ── 夜盤當沖（daytrade_night）────────────────────────────────────────────
+
+  - id: tc_006
+    query: "夜盤當沖，均值回歸"
+    expected: [daytrade_night, mean_reversion]
+    rationale: "夜盤均值回歸，夜盤當沖第二大邏輯類型"
+
+  - id: tc_007
+    query: "夜盤當沖，04:45 強制平倉"
+    expected: [daytrade_night, force_close, 04:45]
+    rationale: "夜盤當沖強制平倉時點（04:45 K open）"
+
+  - id: tc_008
+    query: "daytrade_night 15:00 進場"
+    expected: [daytrade_night, 15:00, night_session]
+    rationale: "夜盤開盤 15:00 是夜盤當沖主要進場時段"
+
+  - id: tc_009
+    query: "夜盤當沖，1分K，順勢"
+    expected: [daytrade_night, 1min, trend]
+    rationale: "夜盤 1 分K順勢策略常見於短線當沖"
+
+  - id: tc_010
+    query: "台指夜盤當沖，逆勢搶反彈"
+    expected: [daytrade_night, mean_reversion, reversal]
+    rationale: "逆勢搶反彈是夜盤均值回歸的變體"
+
+  # ── 日盤波段（swing_day）─────────────────────────────────────────────────
+
+  - id: tc_011
+    query: "日盤波段，多日持倉"
+    expected: [swing_day, cross_day, overnight]
+    rationale: "swing_day 可持倉過夜，跨日不強平"
+
+  - id: tc_012
+    query: "swing_day 趨勢策略"
+    expected: [swing_day, trend]
+    rationale: "波段趨勢策略，日盤 only（不看夜盤資料）"
+
+  - id: tc_013
+    query: "日盤波段，均值回歸"
+    expected: [swing_day, mean_reversion]
+    rationale: "日盤波段均值回歸，適用於日內均值回歸"
+
+  - id: tc_014
+    query: "波段策略，15分K"
+    expected: [swing_day, 15min]
+    rationale: "15分K常見於波段策略，降低雜訊"
+
+  - id: tc_015
+    query: "日盤波段，ATR 停損"
+    expected: [swing_day, ATR, stop_loss]
+    rationale: "ATR 停損是波段策略常見風控機制"
+
+  # ── 全日盤波段（swing_full）──────────────────────────────────────────────
+
+  - id: tc_016
+    query: "全日盤波段，跨日持倉"
+    expected: [swing_full, cross_day, cross_session]
+    rationale: "swing_full 可跨日夜盤，可持倉多日"
+
+  - id: tc_017
+    query: "swing_full 順勢策略"
+    expected: [swing_full, trend]
+    rationale: "全日盤順勢策略，24小時可持倉"
+
+  - id: tc_018
+    query: "全日盤波段，均值回歸"
+    expected: [swing_full, mean_reversion]
+    rationale: "全日盤均值回歸，日夜盤皆可操作"
+
+  - id: tc_019
+    query: "swing_full 1分K短線"
+    expected: [swing_full, 1min, scalp]
+    rationale: "1分K全日盤 scalping 策略"
+
+  - id: tc_020
+    query: "跨日夜盤，順勢當沖"
+    expected: [swing_full, night_session, trend]
+    rationale: "跨日夜盤順勢，全日盤覆蓋"
+
+  # ── 邏輯類型（logic_type）───────────────────────────────────────────────
+
+  - id: tc_021
+    query: "趨勢突破策略"
+    expected: [trend, breakout]
+    rationale: "trend + breakout 高度重疊，是最常見的策略查詢"
+
+  - id: tc_022
+    query: "均值回歸策略"
+    expected: [mean_reversion, reversion]
+    rationale: "均值回歸是最重要的邏輯類型之一"
+
+  - id: tc_023
+    query: "開盤價策略"
+    expected: [opening, open_price]
+    rationale: "開盤價策略是特殊 logic_type，日盤適用"
+
+  - id: tc_024
+    query: "Scalp 策略，1分K"
+    expected: [scalp, 1min]
+    rationale: "Scalping 是超短線日盤當沖"
+
+  - id: tc_025
+    query: "突破區間進場"
+    expected: [breakout, range_break, trend]
+    rationale: "區間突破是 trend breakout 的核心條件"
+
+  # ── 風控機制查詢 ────────────────────────────────────────────────────────
+
+  - id: tc_026
+    query: "固定停損策略"
+    expected: [stop_loss, fixed_stoploss]
+    rationale: "固定停損是最基礎的風控機制"
+
+  - id: tc_027
+    query: "追蹤停損策略"
+    expected: [trailing_stop, stop_loss]
+    rationale: "移動停損 / trailing stop 是進階風控"
+
+  - id: tc_028
+    query: "有冷卻期的當沖策略"
+    expected: [cooldown, daytrade_day, daytrade_night]
+    rationale: "冷卻期（13:25-13:40 / 04:25-04:45）是當沖必備"
+
+  - id: tc_029
+    query: "防止重複進場"
+    expected: [EntriesToday, daytrade_day]
+    rationale: "EntriesToday 防當日重複進場，日盤當沖核心"
+
+  - id: tc_030
+    query: "有 ATR 停損的波段策略"
+    expected: [ATR, stop_loss, swing]
+    rationale: "ATR 停損常見於波段策略（而非當沖）"
+
+  # ── 進階：多樣性 ────────────────────────────────────────────────────────
+
+  - id: tc_031
+    query: "布林通道策略"
+    expected: [Bollinger, band, mean_reversion]
+    rationale: "布林通道是經典均值回歸指標"
+
+  - id: tc_032
+    query: "MACD 策略"
+    expected: [MACD, trend, momentum]
+    rationale: "MACD 是經典動能指標"
+
+  - id: tc_033
+    query: "RSI 策略，均值回歸"
+    expected: [RSI, mean_reversion, overbought, oversold]
+    rationale: "RSI 超買超賣是經典均值回歸訊號"
+
+  - id: tc_034
+    query: "KD 指標策略"
+    expected: [KD, stochastic, trend]
+    rationale: "KD 是亞洲常用技術指標"
+
+  - id: tc_035
+    query: "MA 交叉策略"
+    expected: [MA, moving_average, cross, trend]
+    rationale: "MA 交叉是最經典的趨勢策略"
+
+  # ── 進階：多 session 混合查詢 ───────────────────────────────────────────
+
+  - id: tc_036
+    query: "當沖策略，15分K"
+    expected: [daytrade, 15min]
+    rationale: "15分K當沖比5分K更不易受雜訊影響"
+
+  - id: tc_037
+    query: "台指當沖，高分歧過濾"
+    expected: [daytrade_day, divergence, filter]
+    rationale: "高分歧過濾是 TXDTA505 的關鍵設計"
+
+  - id: tc_038
+    query: "波段策略，週末持倉"
+    expected: [swing_full, cross_weekend]
+    rationale: "只有 swing_full 可持倉過週末"
+
+  - id: tc_039
+    query: "當沖策略，滑價保護"
+    expected: [slippage, daytrade]
+    rationale: "4點滑價（NTD 800）是台指期標準假設"
+
+  - id: tc_040
+    query: "long only 策略"
+    expected: [long, direction]
+    rationale: "Long only 方向限制"
+
+  - id: tc_041
+    query: "short only 策略"
+    expected: [short, direction]
+    rationale: "Short only 方向限制"
+
+  - id: tc_042
+    query: "both 方向當沖"
+    expected: [both, direction, daytrade]
+    rationale: "雙向操作（多空都做）當沖"
+
+  - id: tc_043
+    query: "分倉策略，主部位加碼"
+    expected: [position_sizing, multiple_entries]
+    rationale: "分倉主次部位設計是 TXDTA505 特色"
+
+  - id: tc_044
+    query: "動態停損策略"
+    expected: [dynamic_stop, stop_loss, trend]
+    rationale: "動態停損相對於固定停損"
+
+  - id: tc_045
+    query: "日盤策略，收盤前平倉"
+    expected: [daytrade_day, exit_before_close, force_close]
+    rationale: "日盤當沖收盤前平倉是核心規則"

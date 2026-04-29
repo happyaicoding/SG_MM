@@ -125,24 +125,40 @@ python -m src.mc_bridge.server         # FastAPI service on :8001
 
 ## Phase Status (auto-updated)
 
-**Active Phase**: ⏳ Phase 0 — Alignment & Legacy Reuse Cleanup
-**Started**: not yet
-**Progress**: ░░░░░░░░░░ 0%
+**Active Phase**: ⏳ Phase 1 — 基礎設施與資料層
+**Started**: 2026-04-29
+**Progress**: ████████░░ 75%
 
 ### Recent Milestones (last 10)
-- ⏳ [P0] Initialize Git repo + Docker Compose skeleton
-- ⏳ [P0] Extract Layer-1 reusable code from legacy
-- ⏳ [P0] Write `docs/legacy_assets_inventory.md`
-- ⏳ [P0] Lock V1.4 spec & CLAUDE.md
+- ✅ [P1] feat: trading_day logic + CSV ETL + 13 unit tests
+- ✅ [P1] feat: main.py CLI (db-init, data-init, data-count)
+- ✅ [P1] feat: DuckDB vector_store.py (三向量 schema + 4 collections + HNSW)
+- ✅ [P1] feat: RAG test set (45 cases) + eval_rag.py
+- 🔄 [P1] Phase 1 Report 完成待補寫驗收結果
+- 🔄 [P1] Phase Gate 驗收（db init, ETL, DuckDB 4 collections, pytest 全綠）
 
 ### Quality Metrics (auto-updated each Phase)
 - Strategy diversity index: not measured yet
 - LLM success rate (per provider): not measured yet
-- RAG Recall@5: not measured yet
+- RAG Recall@5: 0.0 (Phase 3 首批策略入庫後測量)
 - Cost per WFA-passing strategy: not measured yet
 
 ### Blockers
 - None
+
+### Phase 1 完成度
+| 模組 | 狀態 |
+|---|---|
+| .env + Config Loader | ✅ 完成 |
+| SQLite Schema + Migration | ✅ 完成 |
+| CSV ETL (trading_day + etl.py) | ✅ 完成 |
+| main.py CLI | ✅ 完成 |
+| DuckDB VectorStore (三向量 schema) | ✅ 完成 |
+| DuckDB 4 Collection init + HNSW | ✅ 完成 |
+| RAG Test Set (45 cases) | ✅ 完成 |
+| eval_rag.py | ✅ 完成 |
+| Unit Tests (27 tests 全綠) | ✅ 完成 |
+| Phase 1 Report | 🔄 補寫驗收結果 |
 
 ## Known Pitfalls (from legacy project)
 
